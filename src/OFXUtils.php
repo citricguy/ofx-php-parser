@@ -19,7 +19,7 @@ class OFXUtils
             $ofxXml = $ofxSgml;
         } else {
             if (preg_match('/<OFX>.*<\/OFX>/', $ofxSgml) === 1) {
-                return str_replace('<', "\n<", $ofxSgml); // add line breaks to allow XML to parse
+                $ofxSgml = str_replace('<', "\n<", $ofxSgml); // add line breaks to allow XML to parse
             }
             $ofxXml = self::convertSgmlToXml($ofxSgml);
         }

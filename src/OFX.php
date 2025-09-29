@@ -42,7 +42,7 @@ class OFX
                 }
             }
         } elseif (isset($xml->CREDITCARDMSGSRSV1)) {
-            $bankAccounts[] = self::parseCreditAccount($xml->TRNUID, $xml);
+            $bankAccounts[] = self::parseCreditAccount($xml->TRNUID, $xml->CREDITCARDMSGSRSV1->CCSTMTTRNRS);
         }
         return new OFXData($signOn, $accountInfo, $bankAccounts);
     }
@@ -91,11 +91,13 @@ class OFX
     {
         $dateString = explode('.', $dateString)[0];
         // Extract the numeric part of the offset (e.g., -5 from [-5:EST])
-        preg_match('/([-+]\d+):(\w+)/', $dateString, $matches);
+        // Also deal with some OFX data where the date string contains the offset, but not the
+        // timezone abbreviation, ie. 20240501094851[-8]
+        preg_match('/([-+]\d+)(:)?(\w+)?/', $dateString, $matches);
 
-        if (count($matches) === 3) {
+        if (count($matches) >= 2) {
             $offset = $matches[1];
-            $timezoneAbbreviation = $matches[2];
+            $timezoneAbbreviation = $matches[3] ?? null;
 
             // Remove the offset with brackets and timezone abbreviation from the date string
             $dateStringWithoutOffset = preg_replace('/[-+]\d+:\w+/', '', $dateString);
@@ -105,7 +107,7 @@ class OFX
 
             // Create a DateTime object with the appropriate timezone offset
             $dateTime = new DateTime($dateStringWithoutOffset, new DateTimeZone("GMT$offset"));
-            $dateTime->setTimezone(new DateTimeZone($timezoneAbbreviation));
+            (null === $timezoneAbbreviation) ?: $dateTime->setTimezone(new DateTimeZone($timezoneAbbreviation));
 
         } else {
             // Handle cases where the date format doesn't match expectations
@@ -120,12 +122,12 @@ class OFX
      */
     private static function parseBankAccount(string $uuid, SimpleXMLElement $xml): BankAccount
     {
-        $accountNumber = $xml->BANKACCTFROM->ACCTID;
-        $accountType = $xml->BANKACCTFROM->ACCTTYPE;
-        $agencyNumber = $xml->BANKACCTFROM->BRANCHID;
-        $routingNumber = $xml->BANKACCTFROM->BANKID;
-        $balance = $xml->LEDGERBAL->BALAMT;
-        $balanceDate = self::parseDate($xml->LEDGERBAL->DTASOF);
+        $accountNumber = $xml->BANKACCTFROM->ACCTID ?? 'N/A';
+        $accountType = $xml->BANKACCTFROM->ACCTTYPE ?? 'N/A';
+        $agencyNumber = $xml->BANKACCTFROM->BRANCHID ?? 'N/A';
+        $routingNumber = $xml->BANKACCTFROM->BANKID ?? 'N/A';
+        $balance = $xml->LEDGERBAL->BALAMT ?? 'N/A';
+        $balanceDate =  (null !== $xml->LEDGERBAL->DTASOF) ? self::parseDate($xml->LEDGERBAL->DTASOF) : new DateTime();
         $statement = self::parseStatement($xml);
         return new BankAccount(
             $accountNumber,
@@ -155,7 +157,7 @@ class OFX
         $routingNumber = $xml->CCSTMTRS->$nodeName->BANKID;
         $balance = $xml->CCSTMTRS->LEDGERBAL->BALAMT;
         $balanceDate = self::parseDate($xml->CCSTMTRS->LEDGERBAL->DTASOF);
-        $statement = self::parseStatement($xml);
+        $statement = self::parseStatement($xml->CCSTMTRS);
         return new BankAccount(
             $accountNumber,
             $accountType,
