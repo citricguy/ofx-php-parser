@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Endeken\OFX;
 
 class Status
@@ -16,32 +18,12 @@ class Status
         '15502'   => 'USERPASS Lockout'
     ];
 
-    /**
-     * @var string
-     */
-    public string $code;
-
-    /**
-     * @var string
-     */
-    public string $severity;
-
-    /**
-     * @var string
-     */
-    public string $message;
-
-    public function __construct(string $code, string $severity, string $message)
+    public function __construct(public string $code, public string $severity, public string $message)
     {
-        $this->code = $code;
-        $this->severity = $severity;
-        $this->message = $message;
     }
 
     /**
      * Get the associated code description
-     *
-     * @return string
      */
     public function codeDescription(): string
     {

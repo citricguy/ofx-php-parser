@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Endeken\OFX;
 
 use DateTime;
@@ -31,19 +33,20 @@ class OFX
             return null;
         }
 
-        $signOn = self::parseSignOn(isset($xml->SIGNONMSGSRSV1->SONRS) ? $xml->SIGNONMSGSRSV1->SONRS : null);
-        $accountInfo = self::parseAccountInfo(isset($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS) ? $xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS : null);
+        $signOn = self::parseSignOn($xml->SIGNONMSGSRSV1->SONRS ?? null);
+        $accountInfo = self::parseAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS ?? null);
         $bankAccounts = [];
 
-        if (isset($xml->BANKMSGSRSV1)) {
+        if (property_exists($xml, 'BANKMSGSRSV1') && $xml->BANKMSGSRSV1 !== null) {
             foreach ($xml->BANKMSGSRSV1->STMTTRNRS as $accountStatement) {
                 foreach ($accountStatement->STMTRS as $statementResponse) {
-                    $bankAccounts[] = self::parseBankAccount($accountStatement->TRNUID, $statementResponse);
+                    $bankAccounts[] = self::parseBankAccount((string) $accountStatement->TRNUID, $statementResponse);
                 }
             }
-        } elseif (isset($xml->CREDITCARDMSGSRSV1)) {
-            $bankAccounts[] = self::parseCreditAccount($xml->TRNUID, $xml->CREDITCARDMSGSRSV1->CCSTMTTRNRS);
+        } elseif (property_exists($xml, 'CREDITCARDMSGSRSV1') && $xml->CREDITCARDMSGSRSV1 !== null) {
+            $bankAccounts[] = self::parseCreditAccount((string) $xml->TRNUID, $xml->CREDITCARDMSGSRSV1->CCSTMTTRNRS);
         }
+
         return new OFXData($signOn, $accountInfo, $bankAccounts);
     }
 
@@ -54,12 +57,13 @@ class OFX
      */
     protected static function parseSignOn(?SimpleXMLElement $xml): ?SignOn
     {
-        if ($xml === null) {
+        if (!$xml instanceof SimpleXMLElement) {
             return null;
         }
+
         $status = self::parseStatus($xml->STATUS);
-        $dateTime = self::parseDate($xml->DTSERVER);
-        $language = $xml->LANGUAGE;
+        $dateTime = self::parseDate((string) $xml->DTSERVER);
+        $language = (string) $xml->LANGUAGE;
         $institute = self::parseInstitute($xml->FI);
         return new SignOn($status, $dateTime, $language, $institute);
     }
@@ -71,10 +75,6 @@ class OFX
         return new Institute($id, $name);
     }
 
-    /**
-     * @param SimpleXMLElement $xml
-     * @return Status
-     */
     protected static function parseStatus(SimpleXMLElement $xml): Status
     {
         $code = (string) $xml->STATUS->CODE;
@@ -104,12 +104,15 @@ class OFX
 
             // Remove the offset with brackets and timezone abbreviation from the date string
             $dateStringWithoutOffset = preg_replace('/[-+]\d+:\w+/', '', $dateString);
+            if ($dateStringWithoutOffset === null) {
+                $dateStringWithoutOffset = $dateString;
+            }
 
             // Remove brackets and timezone abbreviation
-            $dateStringWithoutOffset = str_replace(['[', ']', ':' . $timezoneAbbreviation], '', $dateStringWithoutOffset);
+            $dateStringWithoutOffset = str_replace(['[', ']', ':' . ($timezoneAbbreviation ?? '')], '', $dateStringWithoutOffset);
 
             // Create a DateTime object with the appropriate timezone offset
-            $dateTime = new DateTime($dateStringWithoutOffset, new DateTimeZone("GMT$offset"));
+            $dateTime = new DateTime($dateStringWithoutOffset, new DateTimeZone('GMT' . $offset));
             (null === $timezoneAbbreviation) ?: $dateTime->setTimezone(new DateTimeZone($timezoneAbbreviation));
 
         } else {
@@ -117,6 +120,7 @@ class OFX
             // You might want to log an error or throw an exception depending on your needs
             $dateTime = new DateTime($dateString);
         }
+
         return $dateTime;
     }
 
@@ -125,12 +129,12 @@ class OFX
      */
     private static function parseBankAccount(string $uuid, SimpleXMLElement $xml): BankAccount
     {
-        $accountNumber = $xml->BANKACCTFROM->ACCTID ?? 'N/A';
-        $accountType = $xml->BANKACCTFROM->ACCTTYPE ?? 'N/A';
-        $agencyNumber = $xml->BANKACCTFROM->BRANCHID ?? 'N/A';
-        $routingNumber = $xml->BANKACCTFROM->BANKID ?? 'N/A';
-        $balance = $xml->LEDGERBAL->BALAMT ?? 'N/A';
-        $balanceDate =  (null !== $xml->LEDGERBAL->DTASOF) ? self::parseDate($xml->LEDGERBAL->DTASOF) : new DateTime();
+        $accountNumber = (string) ($xml->BANKACCTFROM->ACCTID ?? 'N/A');
+        $accountType = (string) ($xml->BANKACCTFROM->ACCTTYPE ?? 'N/A');
+        $agencyNumber = (string) ($xml->BANKACCTFROM->BRANCHID ?? 'N/A');
+        $routingNumber = (string) ($xml->BANKACCTFROM->BANKID ?? 'N/A');
+        $balance = (string) ($xml->LEDGERBAL->BALAMT ?? 'N/A');
+        $balanceDate =  (null !== $xml->LEDGERBAL->DTASOF) ? self::parseDate((string) $xml->LEDGERBAL->DTASOF) : new DateTime();
         $statement = self::parseStatement($xml);
         return new BankAccount(
             $accountNumber,
@@ -154,12 +158,12 @@ class OFX
             $nodeName = 'BANKACCTFROM';
         }
 
-        $accountNumber = $xml->CCSTMTRS->$nodeName->ACCTID;
-        $accountType = $xml->CCSTMTRS->$nodeName->ACCTTYPE;
-        $agencyNumber = $xml->CCSTMTRS->$nodeName->BRANCHID;
-        $routingNumber = $xml->CCSTMTRS->$nodeName->BANKID;
-        $balance = $xml->CCSTMTRS->LEDGERBAL->BALAMT;
-        $balanceDate = self::parseDate($xml->CCSTMTRS->LEDGERBAL->DTASOF);
+        $accountNumber = (string) $xml->CCSTMTRS->$nodeName->ACCTID;
+        $accountType = (string) $xml->CCSTMTRS->$nodeName->ACCTTYPE;
+        $agencyNumber = (string) $xml->CCSTMTRS->$nodeName->BRANCHID;
+        $routingNumber = (string) $xml->CCSTMTRS->$nodeName->BANKID;
+        $balance = (string) $xml->CCSTMTRS->LEDGERBAL->BALAMT;
+        $balanceDate = self::parseDate((string) $xml->CCSTMTRS->LEDGERBAL->DTASOF);
         $statement = self::parseStatement($xml->CCSTMTRS);
         return new BankAccount(
             $accountNumber,
@@ -178,23 +182,24 @@ class OFX
      */
     private static function parseStatement(SimpleXMLElement $xml): Statement
     {
-        $currency = $xml->CURDEF;
-        $startDate = self::parseDate($xml->BANKTRANLIST->DTSTART);
-        $endDate = self::parseDate($xml->BANKTRANLIST->DTEND);
+        $currency = (string) $xml->CURDEF;
+        $startDate = self::parseDate((string) $xml->BANKTRANLIST->DTSTART);
+        $endDate = self::parseDate((string) $xml->BANKTRANLIST->DTEND);
         $transactions = [];
         foreach ($xml->BANKTRANLIST->STMTTRN as $transactionXml) {
             $type = (string) $transactionXml->TRNTYPE;
-            $date = self::parseDate($transactionXml->DTPOSTED);
+            $date = self::parseDate((string) $transactionXml->DTPOSTED);
             $userInitiatedDate = null;
-            if (!empty((string) $transactionXml->DTUSER)) {
-                $userInitiatedDate = self::parseDate($transactionXml->DTUSER);
+            if ((string) $transactionXml->DTUSER !== '' && (string) $transactionXml->DTUSER !== '0') {
+                $userInitiatedDate = self::parseDate((string) $transactionXml->DTUSER);
             }
+
             $amount = (float) $transactionXml->TRNAMT;
             $uniqueId = (string) $transactionXml->FITID;
             $name = (string) $transactionXml->NAME;
             $memo = (string) $transactionXml->MEMO;
-            $sic = $transactionXml->SIC;
-            $checkNumber = $transactionXml->CHECKNUM;
+            $sic = (string) $transactionXml->SIC;
+            $checkNumber = (string) $transactionXml->CHECKNUM;
             $transactions[] = new Transaction(
                 $type,
                 $amount,
@@ -207,6 +212,7 @@ class OFX
                 $checkNumber,
             );
         }
+
         return new Statement($currency, $transactions, $startDate, $endDate);
     }
 
@@ -215,9 +221,10 @@ class OFX
      */
     private static function parseAccountInfo(?SimpleXMLElement $xml): array|null
     {
-        if ($xml === null || !isset($xml->ACCTINFO)) {
+        if (!$xml instanceof SimpleXMLElement || (!property_exists($xml, 'ACCTINFO') || $xml->ACCTINFO === null)) {
             return null;
         }
+
         $accounts = [];
         foreach ($xml->ACCTINFO as $account) {
             $accounts[] = new AccountInfo(

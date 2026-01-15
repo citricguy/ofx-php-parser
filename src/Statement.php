@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Endeken\OFX;
 
 use DateTime;
@@ -7,33 +9,9 @@ use DateTime;
 class Statement
 {
     /**
-     * @var string
-     */
-    public string $currency;
-
-    /**
-     * @var Transaction[]
-     */
-    public array $transactions;
-
-    /**
-     * @var DateTime
-     */
-    public DateTime $startDate;
-
-    /**
-     * @var DateTime
-     */
-    public DateTime $endDate;
-
-    /**
      * @param array<int, Transaction> $transactions
      */
-    public function __construct(string $currency, array $transactions, DateTime $startDate, DateTime $endDate)
+    public function __construct(public string $currency, public array $transactions, public DateTime $startDate, public DateTime $endDate)
     {
-        $this->currency = $currency;
-        $this->transactions = $transactions;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
     }
 }

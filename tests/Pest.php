@@ -13,7 +13,7 @@ function parseOfxFile(string $filename): ?OFXData
     $ofxContent = file_get_contents($filePath);
     
     if ($ofxContent === false) {
-        throw new RuntimeException("Failed to read file: $filePath");
+        throw new RuntimeException('Failed to read file: ' . $filePath);
     }
     
     return OFX::parse($ofxContent);

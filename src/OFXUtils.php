@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Endeken\OFX;
 
 use RuntimeException;
@@ -11,12 +13,14 @@ class OFXUtils
     {
         $ofxContent = str_replace(['\r\n'], '\n', $ofxContent);
         $ofxContent = mb_convert_encoding($ofxContent, 'UTF-8', 'ISO-8859-1');
+
         $sgmlStart = stripos($ofxContent, '<OFX>');
         if ($sgmlStart === false) {
             return false;
         }
+
         $ofxHeader = trim(substr($ofxContent, 0, $sgmlStart));
-        $header = self::parseHeader($ofxHeader);
+        self::parseHeader($ofxHeader);
         $ofxSgml = trim(substr($ofxContent, $sgmlStart));
         if (stripos($ofxHeader, '<?xml') === 0) {
             $ofxXml = $ofxSgml;
@@ -24,8 +28,10 @@ class OFXUtils
             if (preg_match('/<OFX>.*<\/OFX>/', $ofxSgml) === 1) {
                 $ofxSgml = str_replace('<', "\n<", $ofxSgml); // add line breaks to allow XML to parse
             }
+
             $ofxXml = self::convertSgmlToXml($ofxSgml);
         }
+
         libxml_clear_errors();
         libxml_use_internal_errors(true);
         $xml = simplexml_load_string($ofxXml);
@@ -47,12 +53,23 @@ class OFXUtils
         $ofxHeader = trim($ofxHeader);
         // Remove empty new lines.
         $ofxHeader = preg_replace('/^\n+/m', '', $ofxHeader);
+        if ($ofxHeader === null) {
+            return $header;
+        }
 
         // Check if it's an XML file (OFXv2)
         if(preg_match('/^<\?xml/', $ofxHeader) === 1) {
             // Only parse OFX headers and not XML headers.
             $ofxHeader = preg_replace('/<\?xml .*?\?>\n?/', '', $ofxHeader);
+            if ($ofxHeader === null) {
+                return $header;
+            }
+
             $ofxHeader = preg_replace(['/"/', '/\?>/', '/<\?OFX/i'], '', $ofxHeader);
+            if ($ofxHeader === null) {
+                return $header;
+            }
+
             $ofxHeaderLine = explode(' ', trim($ofxHeader));
 
             foreach ($ofxHeaderLine as $value) {
@@ -75,6 +92,9 @@ class OFXUtils
     private static function convertSgmlToXml(string $sgml): string
     {
         $sgml = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $sgml);
+        if ($sgml === null) {
+            return '';
+        }
 
         $lines = explode("\n", $sgml);
         $tags = [];
@@ -93,14 +113,14 @@ class OFXUtils
                 $tag = substr($matches[1], 1);
 
                 while (($last = array_pop($tags)) && $last[1] != $tag) {
-                    $lines[$last[0]] = "<{$last[1]}/>";
+                    $lines[$last[0]] = sprintf('<%s/>', $last[1]);
                 }
             } else {
                 $tags[] = [$i, $matches[1]];
             }
         }
 
-        return implode("\n", array_map('trim', $lines));
+        return implode("\n", array_map(trim(...), $lines));
     }
 
     private static function closeUnclosedXmlTags(string $line): string
@@ -119,8 +139,9 @@ class OFXUtils
             $line,
             $matches
         )) {
-            return "<$matches[1]>$matches[2]</$matches[1]>";
+            return sprintf('<%s>%s</%s>', $matches[1], $matches[2], $matches[1]);
         }
+
         return $line;
     }
 
