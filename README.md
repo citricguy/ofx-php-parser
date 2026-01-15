@@ -56,6 +56,36 @@ try {
 }
 ```
 
+## Release v2.0.0
+This repository has been modernized and is being released as **v2.0.0**. Highlights in this major release:
+
+- Tests migrated to **Pest v4** and modernized to use `test()`/`it()` style. ✅
+- Added **PHPStan** static analysis (configured at level 10) and fixed reported issues. ✅
+- Applied automated, safe refactorings with **Rector** to modernize code (constructor promotion, strict types, type hints). ✅
+- Added test coverage tooling and composer scripts to generate HTML, text, and Clover reports. ✅
+- Improved overall test coverage and fixed parsing edge cases uncovered by stricter types.
+
+This is a breaking change release due to modernization and stricter typing; users should test their consuming code and consult the migration notes.
+
+## Development & Testing
+Quick commands to run locally:
+
+- Run tests: `composer test` (Pest)
+- Static analysis: `composer analyse` (PHPStan)
+- Coverage (HTML, no Xdebug required): `composer coverage` or `composer coverage:html`
+- Coverage (text, uses Xdebug): `composer run coverage:text` or `php -d xdebug.mode=coverage ./vendor/bin/pest --coverage --coverage-text --coverage-filter=./src`
+- Generate Clover XML (CI): `composer run coverage:clover`
+
+If you'd like to run coverage without changing Xdebug settings, use the `composer coverage` script (it uses phpdbg).
+
+---
+
 ## Acknowledgements
 
-This library is a standalone project, however it is heavily influenced by the work done in the [asgrim/ofxparser](https://github.com/asgrim/ofxparser) which itself is a fork of [grimfor/ofxparser](https://github.com/grimfor/ofxparser). We would like to acknowledge the contributions made by the developers of these projects. Our intent was not to simply fork the project, but to build upon their work while taking the library in a slightly different direction to better serve our purposes.
+This library stands on the shoulders of giants — full credit and appreciation go to the projects and maintainers that paved the way:
+
+- **asgrim/ofxparser** — provided an invaluable reference implementation and inspired much of the parsing behaviour we relied on. (https://github.com/asgrim/ofxparser)
+- **grimfor/ofxparser** — the earlier work and ideas that influenced subsequent forks and improvements. (https://github.com/grimfor/ofxparser)
+- The many contributors, maintainers, and users of these projects for rigorous examples, bug reports, and design decisions that guided our modernization.
+
+We did not merely fork these projects; we built on their foundations, modernized the codebase (tests, static analysis, and refactorings), and worked to make the library safer and easier to use for everyone. If you contributed to any of the above projects — thank you, your work made this possible.
