@@ -34,6 +34,10 @@
   "scripts": {
     "test": "pest",
     "analyse": "phpstan analyse",
+    "coverage:html": "phpdbg -qrr ./vendor/bin/pest --coverage --coverage-html=coverage --coverage-filter=./src",
+    "coverage:text": "php -d xdebug.mode=coverage ./vendor/bin/pest --coverage --coverage-text --coverage-filter=./src",
+    "coverage:clover": "php -d xdebug.mode=coverage ./vendor/bin/pest --coverage-clover=coverage/clover.xml --coverage-filter=./src",
+    "coverage": "composer coverage:html",
     "refactor": "rector process",
     "refactor-dry": "rector process --dry-run"
   }
