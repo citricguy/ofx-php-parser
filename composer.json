@@ -1,5 +1,5 @@
 {
-  "name": "endeken/ofx-php-parser",
+  "name": "citricguy/ofx-php-parser",
   "description": "OFX PHP parser library",
   "type": "library",
   "license": "MIT",
