@@ -6,6 +6,9 @@ use DateTime;
 
 class Transaction
 {
+    /**
+     * @var array<string, string>
+     */
     private static array $types = [
         'CREDIT' => 'Generic credit',
         'DEBIT' => 'Generic debit',

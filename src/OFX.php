@@ -31,8 +31,8 @@ class OFX
             return null;
         }
 
-        $signOn = self::parseSignOn($xml->SIGNONMSGSRSV1->SONRS);
-        $accountInfo = self::parseAccountInfo($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS);
+        $signOn = self::parseSignOn(isset($xml->SIGNONMSGSRSV1->SONRS) ? $xml->SIGNONMSGSRSV1->SONRS : null);
+        $accountInfo = self::parseAccountInfo(isset($xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS) ? $xml->SIGNUPMSGSRSV1->ACCTINFOTRNRS : null);
         $bankAccounts = [];
 
         if (isset($xml->BANKMSGSRSV1)) {
@@ -52,8 +52,11 @@ class OFX
      * @return SignOn
      * @throws Exception
      */
-    protected static function parseSignOn(SimpleXMLElement $xml): SignOn
+    protected static function parseSignOn(?SimpleXMLElement $xml): ?SignOn
     {
+        if ($xml === null) {
+            return null;
+        }
         $status = self::parseStatus($xml->STATUS);
         $dateTime = self::parseDate($xml->DTSERVER);
         $language = $xml->LANGUAGE;
@@ -207,7 +210,10 @@ class OFX
         return new Statement($currency, $transactions, $startDate, $endDate);
     }
 
-    private static function parseAccountInfo(SimpleXMLElement $xml = null): array|null
+    /**
+     * @return array<int, AccountInfo>|null
+     */
+    private static function parseAccountInfo(?SimpleXMLElement $xml): array|null
     {
         if ($xml === null || !isset($xml->ACCTINFO)) {
             return null;

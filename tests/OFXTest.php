@@ -1,310 +1,103 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-use Endeken\OFX\OFX;
-
-class OFXTest extends TestCase
-{
-    private string $ofxTestFilesDir = __DIR__ . '/fixtures';
-
-    /**
-     * @throws Exception
-     */
-    public function testMultipleAccountsXML()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofx-multiple-accounts-xml.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxData()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataBankingXml200()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-banking-xml200.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataBB()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-bb.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataBBTwoStmtrs()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-bb-two-stmtrs.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataBpbfc()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-bpbfc.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataCmfr()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-cmfr.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataCreditCard()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-credit-card.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataEmptyDateTime()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-emptyDateTime.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataFullExample()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-full-example.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataGoogle()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-google.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataInvestmentsMultipleAccountsXml()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-investments-multiple-accounts-xml.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataInvestmentsOnelineXml()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-investments-oneline-xml.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataInvestmentsXml()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-investments-xml.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataMemoWithAmpersand()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-memoWithAmpersand.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataMemoWithQuotes()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-memoWithQuotes.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataOneline()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-oneline.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataRbcCreditCard()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-rbc-credit-card.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataSelfClose()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-selfclose.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testOfxDataXml()
-    {
-        $filePath = $this->ofxTestFilesDir . '/ofxdata-xml.ofx';
-        $ofxContent = file_get_contents($filePath);
-
-        $parsedData = OFX::parse($ofxContent);
-
-        //var_dump($parsedData);
-
-        $this->assertNotEmpty($parsedData);
-    }
-
-}
+declare(strict_types=1);
+
+test('multiple accounts XML can be parsed', function () {
+    $parsedData = parseOfxFile('ofx-multiple-accounts-xml.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata file successfully', function () {
+    $parsedData = parseOfxFile('ofxdata.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata banking XML 200 format', function () {
+    $parsedData = parseOfxFile('ofxdata-banking-xml200.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata BB format', function () {
+    $parsedData = parseOfxFile('ofxdata-bb.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata with two STMTRS', function () {
+    $parsedData = parseOfxFile('ofxdata-bb-two-stmtrs.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata BPBFC format', function () {
+    $parsedData = parseOfxFile('ofxdata-bpbfc.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata CMFR format', function () {
+    $parsedData = parseOfxFile('ofxdata-cmfr.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata credit card format', function () {
+    $parsedData = parseOfxFile('ofxdata-credit-card.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata with empty datetime', function () {
+    $parsedData = parseOfxFile('ofxdata-emptyDateTime.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata full example', function () {
+    $parsedData = parseOfxFile('ofxdata-full-example.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata Google format', function () {
+    $parsedData = parseOfxFile('ofxdata-google.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata investments multiple accounts XML', function () {
+    $parsedData = parseOfxFile('ofxdata-investments-multiple-accounts-xml.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata investments oneline XML', function () {
+    $parsedData = parseOfxFile('ofxdata-investments-oneline-xml.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata investments XML', function () {
+    $parsedData = parseOfxFile('ofxdata-investments-xml.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata memo with ampersand', function () {
+    $parsedData = parseOfxFile('ofxdata-memoWithAmpersand.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata memo with quotes', function () {
+    $parsedData = parseOfxFile('ofxdata-memoWithQuotes.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata oneline format', function () {
+    $parsedData = parseOfxFile('ofxdata-oneline.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata RBC credit card format', function () {
+    $parsedData = parseOfxFile('ofxdata-rbc-credit-card.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata with self-closing tags', function () {
+    $parsedData = parseOfxFile('ofxdata-selfclose.ofx');
+    expect($parsedData)->not->toBeNull();
+});
+
+it('parses ofxdata XML format', function () {
+    $parsedData = parseOfxFile('ofxdata-xml.ofx');
+    expect($parsedData)->not->toBeNull();
+});

@@ -7,11 +7,14 @@ use SimpleXMLElement;
 
 class OFXUtils
 {
-    public static function normalizeOfx(string $ofxContent): string|false|SimpleXMLElement
+    public static function normalizeOfx(string $ofxContent): false|SimpleXMLElement
     {
         $ofxContent = str_replace(['\r\n'], '\n', $ofxContent);
         $ofxContent = mb_convert_encoding($ofxContent, 'UTF-8', 'ISO-8859-1');
         $sgmlStart = stripos($ofxContent, '<OFX>');
+        if ($sgmlStart === false) {
+            return false;
+        }
         $ofxHeader = trim(substr($ofxContent, 0, $sgmlStart));
         $header = self::parseHeader($ofxHeader);
         $ofxSgml = trim(substr($ofxContent, $sgmlStart));
@@ -34,6 +37,9 @@ class OFXUtils
         return $xml;
     }
 
+    /**
+     * @return array<string, string>
+     */
     private static function parseHeader(string $ofxHeader): array
     {
         $header = [];
@@ -66,7 +72,7 @@ class OFXUtils
         return $header;
     }
 
-    private static function convertSgmlToXml($sgml): string
+    private static function convertSgmlToXml(string $sgml): string
     {
         $sgml = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $sgml);
 
@@ -97,7 +103,7 @@ class OFXUtils
         return implode("\n", array_map('trim', $lines));
     }
 
-    private static function closeUnclosedXmlTags($line): string
+    private static function closeUnclosedXmlTags(string $line): string
     {
         // Special case discovered where empty content tag wasn't closed
         $line = trim($line);

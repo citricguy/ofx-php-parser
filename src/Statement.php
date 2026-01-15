@@ -26,6 +26,9 @@ class Statement
      */
     public DateTime $endDate;
 
+    /**
+     * @param array<int, Transaction> $transactions
+     */
     public function __construct(string $currency, array $transactions, DateTime $startDate, DateTime $endDate)
     {
         $this->currency = $currency;
